@@ -1,0 +1,5 @@
+Something worthy to note:
+
+The grid in this program begins with the origin (0,0) in the top-left corner. Positive x increases to the right, as is convention, whereas positive y increases downward. 
+
+This means in a [7,7] grid, the top-left is (0,0), the bottom-left is (0,7), the top-right is (7,0), and the bottom-right is (7,7).
