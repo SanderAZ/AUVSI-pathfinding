@@ -1,5 +1,14 @@
-Something worthy to note:
+On coordinates:
 
-The grid in this program begins with the origin (0,0) in the top-left corner. Positive x increases to the right, as is convention, whereas positive y increases downward. 
+The grid in this program begins with the origin (0,0) in the top-left corner. Positive x increases to the right, as is convention, 
+whereas positive y increases downward. 
 
 This means in a [7,7] grid, the top-left is (0,0), the bottom-left is (0,7), the top-right is (7,0), and the bottom-right is (7,7).
+
+On heaps:
+
+Heaps in python are an interesting way to store data points. It is a sort of binary tree, however, smaller numbers are toward
+the top and larger numbers are toward the bottom. A good diagram is found at 8.4.3: https://docs.python.org/2/library/heapq.html
+
+The heap used in this program is used to prioritize the most cost-effective path. In sorting the heap, the smallest element is *always*
+in index 0. This way, the most cost-effective path (stored as array elements) will always be in elements[0]!
