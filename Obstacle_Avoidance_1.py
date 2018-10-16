@@ -61,7 +61,7 @@ class GridWithWeights(SquareGrid):
 diagram4 = GridWithWeights(10, 10)
 diagram4.walls = [(1, 7), (1, 8), (2, 7), (2, 8), (3, 7), (3, 8), (6,5), (5,5), (4,6)]
 
-import heapq #https://docs.python.org/2/library/heapq.html
+import heapq #https://docs.python.org/2/library/heapq.html and https://www.tutorialspoint.com/python/python_heaps.htm
 
 class PriorityQueue:
     def __init__(self):
