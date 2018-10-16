@@ -70,7 +70,7 @@ class PriorityQueue:
     def empty(self): # returns true if self.elements is empty
         return len(self.elements) == 0
     
-    def put(self, item, priority):
+    def put(self, item, priority): # see notes
         heapq.heappush(self.elements, (priority, item))
     
     def get(self):
