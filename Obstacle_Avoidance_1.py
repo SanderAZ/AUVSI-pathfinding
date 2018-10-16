@@ -5,7 +5,7 @@ def from_id_width(id, width):
 def draw_tile(graph, id, style, width):
     r = "."
     if 'number' in style and id in style['number']: r = "%d" % style['number'][id]
-    if 'point_to' in style and style['point_to'].get(id, None) is not None:
+    if 'point_to' in style and style['point_to'].get(id, None) is not None: # determines which direction the most optimal path is [see notes]
         (x1, y1) = id
         (x2, y2) = style['point_to'][id]
         if x2 == x1 + 1 and y2 == y1 + 1: r = "↘"
@@ -16,29 +16,30 @@ def draw_tile(graph, id, style, width):
         elif x2 == x1 - 1: r = "←"
         elif y2 == y1 + 1: r = "↓"
         elif y2 == y1 - 1: r = "↑"
-    if 'start' in style and id == style['start']: r = "A"
-    if 'goal' in style and id == style['goal']: r = "Z"
-    if 'path' in style and id in style['path']: r = "@"
-    if id in graph.walls: r = "#" * width
+    if 'start' in style and id == style['start']: r = "A" # marks the starting point with an A
+    if 'goal' in style and id == style['goal']: r = "Z" # marks the goal point with a Z
+    if 'path' in style and id in style['path']: r = "@" # marks 'path' with @
+    if id in graph.walls: r = "#" * width # marks obstacles with a pound symbol
     return r
 
-def draw_grid(graph, width=2, **style):
+def draw_grid(graph, width=2, **style): # prints the graph to console
     for y in range(graph.height):
         for x in range(graph.width):
             print("%%-%ds" % width % draw_tile(graph, (x, y), style, width), end="")
         print()
-
+        
+# This class exists to define a two-dimensonal grid system.
 class SquareGrid:
-    def __init__(self, width, height):
+    def __init__(self, width, height): # Upon calling SquareGrid, a width and height must be initialized
         self.width = width
         self.height = height
         self.walls = []
     
-    def in_bounds(self, id):
+    def in_bounds(self, id): # QA tester to see if inputted values are possible (e.g., not out of bounds)
         (x, y) = id
         return 0 <= x < self.width and 0 <= y < self.height
     
-    def passable(self, id):
+    def passable(self, id): # checks if the inputted point is a wall
         return id not in self.walls
     
     def neighbors(self, id):
@@ -60,13 +61,13 @@ class GridWithWeights(SquareGrid):
 diagram4 = GridWithWeights(10, 10)
 diagram4.walls = [(1, 7), (1, 8), (2, 7), (2, 8), (3, 7), (3, 8), (6,5), (5,5), (4,6)]
 
-import heapq
+import heapq #https://docs.python.org/2/library/heapq.html
 
 class PriorityQueue:
     def __init__(self):
-        self.elements = []
+        self.elements = [] # upon creating a PriorityQueue, array elements is created
     
-    def empty(self):
+    def empty(self): # returns true if self.elements is empty
         return len(self.elements) == 0
     
     def put(self, item, priority):
@@ -83,10 +84,10 @@ def dijkstra_search(graph, start, goal):
     came_from[start] = None
     cost_so_far[start] = 0
     
-    while not frontier.empty():
+    while not frontier.empty(): # will run only if
         current = frontier.get()
         
-        if current == goal:
+        if current == goal: # if the testing point is the goal point, end the program
             break
         
         for next in graph.neighbors(current):
