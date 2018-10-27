@@ -1,5 +1,8 @@
-start, goal = (0, 0), (4, 3)
-points = [start, goal, (2,1), (1,2), (1,4), (2,3), (3,3), (2, 4), (1, 3), (2,0), (3,1), (1,1)]
+import math
+import operator
+import numpy
+start, goal = (0, 2), (8, 3)
+points = [start, goal]
 
 def from_id_width(id, width):
     return (id % width, id // width)
@@ -7,7 +10,7 @@ def from_id_width(id, width):
 def draw_tile(graph, id, style, width):
     r = "."
     if 'number' in style and id in style['number'] and id in points: r = "%d" % style['number'][id]
-    if 'point_to' in style and style['point_to'].get(id, None) is not None and id in points:
+    elif 'point_to' in style and style['point_to'].get(id, None) is not None and id in points:
         (x1, y1) = id
         (x2, y2) = style['point_to'][id]
         if x2 == x1 + 1 and y2 == y1 + 1: r = "↘"
@@ -18,10 +21,19 @@ def draw_tile(graph, id, style, width):
         elif x2 == x1 - 1: r = "←"
         elif y2 == y1 + 1: r = "↓"
         elif y2 == y1 - 1: r = "↑"
-    if 'start' in style and id == style['start']: r = "A"
-    if 'goal' in style and id == style['goal']: r = "Z"
-    if 'path' in style and id in style['path'] and id in points: r = "@"
-    if id in graph.walls: r = "#"
+    elif 'start' in style and id == style['start']: r = "A"
+    elif 'goal' in style and id == style['goal']: r = "Z"
+    elif 'path' in style and id in style['path'] and id in points: r = "@"
+    elif id in graph.walls: 
+        r = "#"
+        m = tuple(map(operator.add, id, (1,0)))
+        n = tuple(map(operator.add, id, (0,1)))
+        o = tuple(map(operator.add, id, (-1,0)))
+        p = tuple(map(operator.add, id, (0,-1)))
+        points.append(tuple((m)))
+        points.append(tuple((n)))
+        points.append(tuple((o)))
+        points.append(tuple((p)))
     return r
 
 def draw_grid(graph, width=2, **style):
@@ -57,10 +69,13 @@ class GridWithWeights(Grid):
         self.weights = {}
     
     def cost(self, from_node, to_node):
-        return self.weights.get(to_node, 1)
+        if to_node == tuple(numpy.add((from_node), (1,1))) or to_node == tuple(numpy.add((from_node), (-1,-1))) or to_node == tuple(numpy.add((from_node), (-1,1))) or to_node == tuple(numpy.add((from_node), (1,-1))):
+            return self.weights.get(to_node, 1.4)
+        else:
+            return self.weights.get(to_node, 1)
 
-diagram4 = GridWithWeights(5, 5)
-diagram4.walls = [(2,2), (2,3), (2,1)]
+diagram4 = GridWithWeights(10, 10)
+diagram4.walls = [(2,2), (2,3), (2,1), (7, 3), (7,4)]
 
 import heapq
 
@@ -105,29 +120,17 @@ def dijkstra_search(graph, start, goal):
 def reconstruct_path(came_from, start, goal):
     current = goal
     path = []
-    true_path = []
     while current != start:
         path.append(current)
         current = came_from[current] 
     path.append(start) # optional
     path.reverse() # optional
-    i = 0
-    while i < (len(path) - 2):
-        if path[i+1][0] == path[i][0] or path[i+1][1] == path[i][1]:
-            if path[i+1] == path[-1]:
-                del path[i]
-            true_path.append(path[i])
-            del path[i+1]
-        elif path[i+1] != path[i]:
-            true_path.append(path[i])
-        i = i+1
     return path
-    return true_path
-
+    
 def heuristic(a, b):
     (x1, y1) = a
     (x2, y2) = b
-    return abs(x1 - x2) + abs(y1 - y2)
+    return math.sqrt((x2-x1)**2+(y2-y1)**2)
 
 def a_star_search(graph, start, goal):
     frontier = PriorityQueue()
