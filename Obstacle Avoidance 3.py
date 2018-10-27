@@ -1,7 +1,7 @@
 import math
 import operator
 import numpy
-start, goal = (0, 2), (8, 3)
+start, goal = (0, 2), (4, 3)
 points = [start, goal]
 
 def from_id_width(id, width):
@@ -74,8 +74,8 @@ class GridWithWeights(Grid):
         else:
             return self.weights.get(to_node, 1)
 
-diagram4 = GridWithWeights(10, 10)
-diagram4.walls = [(2,2), (2,3), (2,1), (7, 3), (7,4)]
+diagram4 = GridWithWeights(6, 6)
+diagram4.walls = [(3,2), (3,3), (3,1), (3,4)]
 
 import heapq
 
@@ -116,11 +116,10 @@ def dijkstra_search(graph, start, goal):
     
     return came_from, cost_so_far
 
-
 def reconstruct_path(came_from, start, goal):
     current = goal
     path = []
-    while current != start:
+    while current != start and current in points:
         path.append(current)
         current = came_from[current] 
     path.append(start) # optional
