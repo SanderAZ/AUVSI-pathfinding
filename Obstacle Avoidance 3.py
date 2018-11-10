@@ -1,16 +1,11 @@
 import math
 import operator
-import numpy
-start, goal = (0, 2), (4, 3)
-points = [start, goal]
-
-def from_id_width(id, width):
-    return (id % width, id // width)
+import numpy    
 
 def draw_tile(graph, id, style, width):
     r = "."
-    if 'number' in style and id in style['number'] and id in points: r = "%d" % style['number'][id]
-    elif 'point_to' in style and style['point_to'].get(id, None) is not None and id in points:
+    if 'number' in style and id in style['number']: r = "%d" % style['number'][id]
+    elif 'point_to' in style and style['point_to'].get(id, None) is not None:
         (x1, y1) = id
         (x2, y2) = style['point_to'][id]
         if x2 == x1 + 1 and y2 == y1 + 1: r = "↘"
@@ -21,19 +16,12 @@ def draw_tile(graph, id, style, width):
         elif x2 == x1 - 1: r = "←"
         elif y2 == y1 + 1: r = "↓"
         elif y2 == y1 - 1: r = "↑"
-    elif 'start' in style and id == style['start']: r = "A"
-    elif 'goal' in style and id == style['goal']: r = "Z"
-    elif 'path' in style and id in style['path'] and id in points: r = "@"
-    elif id in graph.walls: 
+    if 'start' in style and id == style['start']: r = "A"
+    if 'goal' in style and id == style['goal']: r = "Z"
+    if 'path' in style and id in style['path']: 
+        r = "@"
+    if id in graph.walls: 
         r = "#"
-        m = tuple(map(operator.add, id, (1,0)))
-        n = tuple(map(operator.add, id, (0,1)))
-        o = tuple(map(operator.add, id, (-1,0)))
-        p = tuple(map(operator.add, id, (0,-1)))
-        points.append(tuple((m)))
-        points.append(tuple((n)))
-        points.append(tuple((o)))
-        points.append(tuple((p)))
     return r
 
 def draw_grid(graph, width=2, **style):
@@ -62,6 +50,28 @@ class Grid:
         results = filter(self.in_bounds, results)
         results = filter(self.passable, results)
         return results
+    
+    def find_points(self, id):
+        (x, y) = id
+        points = [start, goal]
+        if id in self.walls:
+            m = tuple(map(operator.add, id, (1,0)))
+            n = tuple(map(operator.add, id, (0,1)))
+            o = tuple(map(operator.add, id, (-1,0)))
+            p = tuple(map(operator.add, id, (0,-1)))
+            f = tuple(map(operator.add, id, (1,1)))
+            g = tuple(map(operator.add, id, (-1,-1)))
+            h = tuple(map(operator.add, id, (1,-1)))
+            i = tuple(map(operator.add, id, (-1,1)))
+            points.append(tuple((m)))
+            points.append(tuple((n)))
+            points.append(tuple((o)))
+            points.append(tuple((p)))
+            points.append(tuple((f)))
+            points.append(tuple((g)))
+            points.append(tuple((h)))
+            points.append(tuple((i)))
+        return points
 
 class GridWithWeights(Grid):
     def __init__(self, width, height):
@@ -74,8 +84,9 @@ class GridWithWeights(Grid):
         else:
             return self.weights.get(to_node, 1)
 
+start, goal = (2, 2), (5, 1)
 diagram4 = GridWithWeights(6, 6)
-diagram4.walls = [(3,2), (3,3), (3,1), (3,4)]
+diagram4.walls = [(3,2), (3,3), (3,1)]
 
 import heapq
 
@@ -120,8 +131,8 @@ def reconstruct_path(came_from, start, goal):
     current = goal
     path = []
     while current != start:
-        path.append(current)
-        current = came_from[current] 
+            path.append(current)
+            current = came_from[current] 
     path.append(start) # optional
     path.reverse() # optional
     return path
@@ -156,11 +167,5 @@ def a_star_search(graph, start, goal):
     return came_from, cost_so_far
 
 came_from, cost_so_far = a_star_search(diagram4, start, goal)
-draw_grid(diagram4, width=3, point_to=came_from, start=start, goal=goal)
-print()
-draw_grid(diagram4, width=3, number=cost_so_far, start=start, goal=goal)
-print()
-draw_grid(diagram4, width=3, path=reconstruct_path(came_from, start=start, goal=goal))
-print()
 path=reconstruct_path(came_from, start=start, goal=goal)
 print()
